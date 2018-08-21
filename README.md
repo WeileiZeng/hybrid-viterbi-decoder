@@ -1,4 +1,4 @@
-# hybrid-viterbi-decoding
+# hybrid-viterbi-decoder
 This  project implement a hybrid viterbi decoding method able to decode both qubit error and syndrome error
 ### classical binary code
 For classical binary code, one use trellis diagram to encode and decode. The decoding method is called viterbi decoding, in which we find a path, starting from zero states and ends in zero states, with maximum probability. It can not only decode the errors, but also decode the codeword at the same time.
@@ -9,4 +9,20 @@ It is not necessary to do so, which applies an algorithm with the same complexit
 ### advantage of viterbi decoding
 viterbi decoding is indeed a maximum likelihood decoding. One can apply it to any block codes. When aplly it to convolutional code, it has a very lower complexity limited by its constraint length. The trellis diagram also has limited size related to its constraint length. Except than the convolutional code, the parity check matrix of many sparse code can be written in a strip/'convolutional' form. Then viterbi decoding is applicable with low complexity. What we did in this project is that, find the parity check matrix of a data syndrome quantum code, permute it into a strip form and apply modified viterbi decoding.
 ### degenerate viterbi decoding for quantum code
-In classical code, for a given syndrome measurement, it has a distinguished good error and many other bad errors. This leads to a unique path in the trellis diagram. However, in quantum code, for a given syndrome measurement result, there are equivelant good errors differed by a stabilizer generator. In the trellis diagram, this means one need to find different paths. (Up to n08/03/2018, this hasn't been implemented in the program).
+In classical code, for a given syndrome measurement, it has a distinguished good error and many other bad errors. This leads to a unique path in the trellis diagram. However, in quantum code, for a given syndrome measurement result, there are equivelant good errors differed by a stabilizer generator. In the trellis diagram, this means one need to find different paths. This need to be done for maximum likelihood decoding. But for minimum weight decoding, we only need to find the path of min weight and then check if this is equivalent to the input error by some stabilizer generators.
+## project structure
+This project include several small projects
+  * tool functions
+    * dec2octal
+    * gf42octal
+    * pick10
+    * pickGF4
+    * plusGF4
+    * plusGF4vec
+    * symplecticGF4
+    * timesGF4
+    * traceGF4
+  * weght distribution
+    * forney_spect_binary        - From forney's code, calculate the WEF for each orthogonal code
+    * forney_spect_gf4
+ 
