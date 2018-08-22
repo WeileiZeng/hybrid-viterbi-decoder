@@ -11,14 +11,7 @@ viterbi decoding is indeed a maximum likelihood decoding. One can apply it to an
 ### degenerate viterbi decoding for quantum code
 In classical code, for a given syndrome measurement, it has a distinguished good error and many other bad errors. This leads to a unique path in the trellis diagram. However, in quantum code, for a given syndrome measurement result, there are equivelant good errors differed by a stabilizer generator. In the trellis diagram, this means one need to find different paths. This need to be done for maximum likelihood decoding. But for minimum weight decoding, we only need to find the path of min weight and then check if this is equivalent to the input error by some stabilizer generators.
 ## project structure
-This project include several small projects
-  
-  * weight distribution
-    * forney_spect_binary        - WEF of binary code in Forney's paper
-    * forney_spect_gf4           - WEF of GF(4) code in Forney's paper
-    * convcell                   - tool function: convolutional product A^k
-    * codeword_generate          - exhaust search of codeword with given weight
-    * spect_terminated           - WEF of terminated codes.
+This project include several small projects. (running environment: Matlab R2018a - acedemic use)
   * hybrid viterbi decoder
     * generate_error_prob_vector - give error probability vector for various error model
     * getSavedTrellis            - load trellis from files.
@@ -36,6 +29,12 @@ This project include several small projects
     * viterbiDecoderGF4          - viterbi decoder for GF(4) block codes. does work now after several version updates.
     * viterbiDecoderGF4Strip     - hybrid viterbi decoder, hard decision
     * viterbiDecoderGF4StripSoft - hybrid viterbi decoder, soft decision
+  * weight distribution
+    * forney_spect_binary        - WEF of binary code in Forney's paper
+    * forney_spect_gf4           - WEF of GF(4) code in Forney's paper
+    * convcell                   - tool function: convolutional product A^k
+    * codeword_generate          - exhaust search of codeword with given weight
+    * spect_terminated           - WEF of terminated codes.
   * classical viterbi decoder
     * myconvenc                  - practice on viterbi decoder for classical binary code
     * poly2trellis4gf4           - GF(4) version of matlab function poly2trellis()
