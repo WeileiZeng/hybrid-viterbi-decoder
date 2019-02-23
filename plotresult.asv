@@ -380,7 +380,7 @@ legend('Location','northwest')
 
     
       
-% % threshold
+%threshold
 %     repeat=7;code='code1';
 %     codePrefix=['data/simulations/',code,'/simulation678-repeat'];
 %     repeat2=11;
@@ -402,7 +402,7 @@ legend('Location','northwest')
 %         [codePrefix,num2str(repeat4),'model-a-soft-3.mat'],...
 %         [codePrefix,num2str(repeat5),'model-a-soft-3.mat'],...
 %     };
-% 
+
 %     code='code4';
 %     codePrefix=['data/simulations/',code,'/simulation678-repeat'];
 %     filenames = {...
@@ -418,8 +418,22 @@ legend('Location','northwest')
 
     draw_more(filenames,titleText,legends) ;
  end
- 
  function draw_two(filename1,filename2,titleText) 
+ %draw two curves, first for convolutional, and second for repetition
+% pq=pm,ps=(1-(1-2pm)^wt(g))/2
+ 
+%  repeat=4;
+% 
+% pms=1.5:0.2:3.5
+%  pms=0.1.^pms ;
+%  
+%  %repetition syndrome
+% pm_good = (1-pms).^3 + 2*pms.*(1-pms).^2;
+% pm_fail=1-pm_good.^(2*repeat+4); %all syndrome bits has no error
+
+%filename1 = 'data/simulation6b-51qubits-1.mat'; %convolutional DS P
+%6b-51qubits-1 filename2 = 'data/simulation7b-51qubits-2.mat'; %repetition
+
 %get data 
 load(filename1,'table');
 table1 =table;
@@ -448,7 +462,7 @@ for i=1:length
     load(filename,'table');
     tables{i} = table;
 end
-myfig=figure('pos',[100 400 700 500])  %left bottom width height
+figure('pos',[100 400 700 500])  %left bottom width height
 hold on
 halfLength=ceil(length/2);
 for i=1:halfLength
@@ -470,8 +484,6 @@ legend('Location','southeast')
  title(titleText)
  label()
  hold off
- figName=['fig12102018/',titleText,'.fig'];
- savefig(figName)
  end
  
  

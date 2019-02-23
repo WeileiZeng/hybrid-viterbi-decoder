@@ -8,13 +8,13 @@
 %     = getSavedTrellis(repeat)
 
 
-function [P,strip,Ptransfer,Qtransfer,numInputSymbols,weightP,trellisGF4Strip]...
+function [P,strip,Ptransfer,Qtransfer,numInputSymbols,weightP,trellisGF4Strip,P_dual]...
     = getSavedTrellis(repeat,folder)
 
 
 filename=[folder,'/repeat',num2str(repeat),'.mat' ]
 load(filename,'P','strip','Ptransfer','Qtransfer','numInputSymbols',...
-    'weightP','trellisGF4Strip')
+    'weightP','trellisGF4Strip','P_dual')
 
 
 end

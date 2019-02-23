@@ -1,24 +1,42 @@
+%Weilei Zeng, jan 10 2018
+% This program is adapted for SimulationRepeatCircuit. The input is
+% errorInput: qubit error only
+% syndrome:  the actual syndrome result
+% from the syndrome, this program will decode an error. If it matches the errorInput, then decoding is successful.
+
+
 % Weilei Zeng, 07/19/2018
 % soft decision decoding
 % viterbi decoding for hybrid convolutional code (quantum and classical).
 % use trellisGF4 defined by Weilei Zeng.
 
-function [isGoodError,errorRemained] = viterbiDecoderGF4StripSoft(...
+function [isGoodError,errorRemained,syndromeRemained] = viterbiDecoderGF4StripSoftCircuit(...
     P,strip,Ptransfer,Qtransfer,numInputSymbols,trellisGF4Strip,...
-    errorInput,metric_vec_P_input)
+    errorInput,metric_vec_P_input,syndrome)
 %return 1 for fully-detected good error and 0 otherwise
 
+%  metric_vec_P = measureP(P,errorInput,Ptransfer,Qtransfer,
+%  numInputSymbols,metric_vec_P_input);
+  %this errorInput is different than the it in
+  %viterbiDecoderGF4StripSoft.m
+  errorCircuit=errorInput;
 
-metric_vec_P = measureP(P,errorInput,Ptransfer,Qtransfer,numInputSymbols,metric_vec_P_input);
+  %do a check. result: when no syndrome error, the detected error is valid
+  %  syndrome=measure(P,errorCircuit,numInputSymbols);
+  
+  metric_vec_P=[1-(syndrome*Ptransfer)*2].*metric_vec_P_input; %syndrome is a length-m row vector
+  %  metric_vec_P = measurePCircuit(errorCircuit,Qtransfer,numInputSymbols,metric_vec_P_input);
+  %  metric_vec_P = measureP(  P,errorInput,Ptransfer,Qtransfer,numInputSymbols,metric_vec_P_input);
 
-%initialize
-numLayers = size(trellisGF4Strip,2);
-trellisGF4=trellisGF4Strip{1};
-metric = zeros(trellisGF4.numStates,1)-numLayers; %-trellisGF4.numLayers for some non-exist path 
-path  = zeros(trellisGF4.numStates,trellisGF4.numLayers)-1; %-1 for some non-exist path
-pathMetricCell = cell(4,numLayers); %rows: shiftLength,pathLength,Path[]
- %initialize
- layer=1;
+  
+  %initialize
+  numLayers = size(trellisGF4Strip,2);
+  trellisGF4=trellisGF4Strip{1};
+  metric = zeros(trellisGF4.numStates,1)-numLayers; %-trellisGF4.numLayers for some non-exist path 
+  path  = zeros(trellisGF4.numStates,trellisGF4.numLayers)-1; %-1 for some non-exist path
+  pathMetricCell = cell(4,numLayers); %rows: shiftLength,pathLength,Path[]
+                                      %initialize
+  layer=1;
 for i = 1:trellisGF4.numStates  
 
     if trellisGF4.stateIsOccupied(i,layer)       %run over all occupied current state
@@ -33,8 +51,7 @@ for i = 1:trellisGF4.numStates
             if metric_temp > metric(nextState+1) %find path with maximum metric
                 path(nextState+1,1)=input;
                 metric(nextState+1)=metric_temp;
-            end
-        
+            end        
         end
     end
 end
@@ -43,8 +60,6 @@ shiftLength=0;
 pathMetricCell{1,1}=shiftLength;
 pathMetricCell{3,1}=path;
 pathMetricCell{4,1}=metric;
-
-
 
 %going through the path and find the path with maximum metric
 for layer = 2:numLayers
@@ -98,16 +113,11 @@ for layer = 2:numLayers
     %pathMetricCell{2,layer}=pathLength;
     pathMetricCell{3,layer}=path;
     pathMetricCell{4,layer}=metric;
-
     %check
 %     if layer == 37
 %         path37 = path;
 %     end
 end
-
-%save pathMetricCell
-
-%pause
 
 %track back the decoded error
 errorDetected=zeros(1,numLayers)-1;
@@ -128,10 +138,7 @@ for i = 2:numLayers
     shiftLength=strip(1,layer)-strip(1,layer-1);
   %  shiftLength
     finalState = previous2final(previousState,shiftLength);
-
-    %check
-    %    layer,path,error,previousStates ,previousState,finalState
-%    pause
+   % path,error,previousStates,previousState,finalState
 end
 
 %the first layer/error
@@ -149,51 +156,51 @@ errorDetected(layer) = error;
 %errorMap = errorDetected+errorInput;
 %errorDetected  = totalError2QubitError(errorDetected,Qtransfer)
 %errorRemained=bitxor(errorDetected,errorInput);
-errorRemained=plusGF4vec(errorDetected,errorInput);
+
+%errorRemained=(errorDetected-errorInput);  % should use plusGF4vec() here
+errorRemained=plusGF4vec(errorDetected,errorInput);  % updated on Jan 10 2019, Weilei
 
 errorRemained = totalError2QubitError(errorRemained,Qtransfer);
+
+syndromeRemained = measure(P,errorRemained,numInputSymbols);%This is the syndrome for the remained error. because the function measureP can not be used outside this script, we calculate syndrome here for other program to use.
+
 %totalNumberOfErrorRemained = sum(errorRemained);
 %disp('notation in errormap => 1: remained error; 2: fixed error')
 
-%{  %display
-%disp('[errorInput;metric_vec_P;errorDetected;Qtransfer;order]')
+% display
+%disp('[errorInput;metric_vec_P;errorDetected;Qtransferl;order]')
 %order=1:size(Qtransfer,2);
 %order=size(Qtransfer,2)-order; %reverse
-                               %[errorInput;metric_vec_P;errorDetected;errorRemained;Qtransfer;order]'
-%}
+%[errorInput;metric_vec_P;errorDetected;errorRemained;Qtransfer;order]'
 
 if sum(abs(errorRemained))
     isGoodError = 0;
 else
     isGoodError = 1;
+
+    %print the good error
+    %errorInput
+    %syndrome
+    %pause
 end
 
 
 
-
-
-%if isGoodError==0
-% errorInput
-%   errorDetected
-%   metric_vec_P
-%   syndrome = measure(P,errorInput,numInputSymbols) %GF4 and GF2; 
-    %    pause
-    %end
-
-
-
-%check Feb 5
-%pathMetricCell{4,1}
-%pathMetricCell{4,9}
-%pause
-
-%syndrome check. result: syndrome is right
 %{
-%metric_vec_P
-%errorInput
-%metric_vec_P_diff = measureP(P,plusGF4vec(errorInput,errorDetected),Ptransfer,Qtransfer,numInputSymbols,metric_vec_P_input);
-%sign(metric_vec_P_diff)
-%pause
+%do a check. result: the error turns out to have a larger syndrome error probability and smaller qubit error prob
+isGoodError
+syndrome
+errorInput
+errorDetected
+%metric_vec_P_input
+%errorDiff=plusGF4vec(errorDetected,errorInput)
+%syndromeDiff = measure(P,plusGF4vec(errorDetected,errorInput),numInputSymbols)
+%errorInput=zeros(1,22);errorInput(1)=1;errorInput(6)=1; % a test show that measure() give the right syndrome
+%syndrome4InputError=measure(P,errorInput,numInputSymbols)
+%syndromError = syndrome+syndrome4InputError 
+%syndrome4DetectedError=measure(P,errorDetected,numInputSymbols)
+%errorRemained
+pause
 %}
 
 end
@@ -216,11 +223,11 @@ function error = getError(input,layer,metric_vec)
 %is 1
     if metric_vec(layer)>0
             error = input;
-    else  %flip the error
-        if input > 1  %qubit error
-                      %            disp('decoder: only 0/1 input for syndrome bit, no input for qubits')
+    else
+        if input > 1
+            %disp('only 0/1 input for syndrome bit, no input for qubits')
             error = input;
-        else %syndrome bit
+        else
             error = 1-input;    
         end
         
@@ -233,8 +240,6 @@ end
 
 function syndrome = measure(G,error,numInputSymbols) %GF4 and GF2; 
 %from parity check matrix G and row vector error e, calculate the row vector syndrome
-%this doesnot work for GA, need the next function measureP
-    
     syndrome = zeros(1,size(G,1));
     ss=G;
     for i =1:size(G,1)
@@ -252,21 +257,43 @@ function syndrome = measure(G,error,numInputSymbols) %GF4 and GF2;
     end
 end
 
+function mixMetric=measurePCircuit(errorCircuit,Qtransfer,numInputSymbols,metric_vec_P_input)
+%This function is not necessary, and not used in this program.
+%In this simulation for the circuit mode, the input is errorCircuit and syndromeCircuit. errorCircuit saves qubit error only, and syndromeCircuit give the syndrome needed here. I only need to convert the syndrome into metrix. And that's it.
+    
+%errorInput is not the actuall error, but qubit error and the actual
+%syndrome sit on the bits corresponding to syndrome
+%This makes the procedure much simpler than the measureP()
+    %qubitError = errorCircuit.*( 1-Qtransfer );
+    syndrome = errorCircuit.*( Qtransfer );
+    mixMetric=[1-syndrome*2].*metric_vec_P_input;
+    %flip if syndrome bit = 1
+end
+
 function mixMetric = measureP(P,errorInput,Ptransfer,Qtransfer,numInputSymbols,metric_vec_P_input)
 %calculate qubit error and syndrome error independently and return the
-%metricVec
+%metricVec. This part is explained in data syndrome code2.pdf
+% note our P is not the actual parity check matrix. It has A instead
+% of AG
   
     qubitError = errorInput.*( 1-Qtransfer );
     syndromeError = errorInput.*( Qtransfer );
     syndrome_G = measure(P,qubitError,numInputSymbols);
+    %syndrome_G is the part of syndrome corresponding to G only, not A
+
+    
     metric_G=syndrome2metric_vec_P(syndrome_G,Ptransfer);
     error_sG = (metric_G-1)/(-2); % convert 1 -1 to 0 1
     syndrome_A = measure(P,error_sG,numInputSymbols);
+				%syndromeA is the full syndrome for
+				%the qubit error
     
     
     metric_A=syndrome2metric_vec_P(syndrome_A,Ptransfer);
-    error_sA = (metric_A-1)/(-2);
+    error_sA = (metric_A-1)/(-2); %In fact, error_sA=syndrome_A*Ptransfer
     mixError = bitxor(error_sA , syndromeError);%only syndrome error
+    %mixError is the actual syndrome result. error_sA is the right
+    %syndrome for the qubit error
     
     %mixMetric = -(mixError*2-1);%for hard decision decoding
     

@@ -12,7 +12,7 @@
 %vv=[2 2];gg=[01 11 10 ;01 11 10];
 
 %GF4 code rate 2/3, d=3
-%vv=[1 2];gg=[ 3 2 1; 11 12 13];
+vv=[1 2];gg=[ 3 2 1; 11 12 13];
 %GF4 code rate 2/3, d=4
 %vv=[2 2];gg=[02 03 11; 10 13 13];
 
@@ -47,7 +47,7 @@
 %vv=5;gg=[33131];    % catastropic
 %vv=5;gg=[13133];     % catastropic
 %vv=3; gg=[132];       % catastropic
-vv=6;gg=[10031 13133];  %non catastrophic
+%vv=6;gg=[10031 13133];  %non catastrophic
 
 
 

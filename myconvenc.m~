@@ -1,7 +1,3 @@
-%Weilei Zeng, Feb 19 2019
-%matlab has its own decoder for convolutional code, use that instead
-
-
 % Weilei Zeng, 07/19/2018
 % encoder and viterbi decoder for classical covoluitonal code.
 % use trellis defined by matlab

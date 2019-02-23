@@ -1,3 +1,5 @@
+%Weilei Feb 13, 2019, construct code 6 and code 7, where extra generators in first block and last block varies
+
 % Weilei Zeng, 07/27/2018 updated version with g and \omega g
 
 % From the generating matrix $G$ for a QCC, and the generating matrix $A$ of
@@ -9,7 +11,7 @@
 %to change the terminated method to terminate code C.(see last part of this
 %program)
 
-function P = matrix_generate_strip(repeat,code)
+function P = matrix_generate_strip2(repeat)
 %repeat = repeat -2 when terminating dual C code for quantum code
 
 %Input: g (for G), a (for A)
@@ -25,43 +27,15 @@ vv=2;gg=[11 12 13];  %111123
 %syndrome concolutional code
 %vva=4;gga=[1011 1111]; %11011111  ,u=4,s=2
 %vva=2;gga=[10 11]; %1101
-%vva=3;gga=[101 111]; %110111  d=4 coderate 1/2
-vva=1;gga=[1 1]; %naive convolutional code for repetition code.
+vva=3;gga=[101 111]; %110111  d=4 coderate 1/2
+                     %vva=1;gga=[1 1]; % repeat twice
 
 %code 1 vv=2;gg=[11 12 13];  %111123   %vva=3;gga=[101 111];
 %code 2 vv=2;gg=[11 12 13];  %111123  vva=4;gga=[1011 1111]; %11011111  ,u=4,s=2
 %code 3  vv=3;gg=[111 121 133];  %111123113   vva=3;gga=[101 111];
 % code 4 vv=4;gg=[1001 1113 1232]  vva=3;gga=[101 111];
 % code 5 vv=2;gg=[11 12 13];  %111123    vva=1;gga=[1 1] this is for repetion DS code.
-
-%code='code5';
-switch code
-  case {'code1','code6'}
-    %for code6, I fix the second and last generator ( outside of this program ) to make it a valid stabilizer code with distance 3.
-    %QCC code for G
-    vv=2;gg=[11 12 13];  %111123
-    %CC code for A
-    vva=3;gga=[101 111]; %110111  d=4 coderate 1/2
-  case 'code2'
-    %code 2
-    vv=2;gg=[11 12 13];  %111123
-    vva=4;gga=[1011 1111]; %11011111  ,u=4,s=2
-  case 'code3'
-    vv=3;gg=[111 121 133];  %111123113
-    vva=3;gga=[101 111];
-  case 'code4'
-    vv=4;gg=[1001 1113 1232]
-    vva=3;gga=[101 111];
-  case 'code5'
-    % GR code
-    vv=2;gg=[11 12 13];  %111123
-    vva=1;gga=[1 1];
-    %this is for repetion DS code.
-
-
-end
-
-   
+% code 6, same as code 1, but extra generators varies.
 
 
 
@@ -122,6 +96,7 @@ for i = 1:(vg-1) %row
         end
     end
 end
+%blockg
 P(1:size(blockg,1),1:size(blockg,2))=blockg;
 
 %add second columns, blockI
@@ -157,20 +132,6 @@ end
 %remove g_1 wg_1  % remove blockg
 P(:,1:ng*(vg-1))=[];
 
-
-%remove last zero rows for GR case
-while 1
-    row_sum=sum(P');
-    if row_sum(end)==0
-        P(end,:)=[];
-    else
-        break
-    end
-end
-
-
-
-
 % %construct some necessary matrix
 % strip = P2strip(P); %2-row matrix, denote the top and bottom nonzero position in each row
 % Ptransfer = P2metric_transfer(P);  %Ptrasnfer=T_p=T_{row}(0|I)T_{col}, it can convert a syndrome to input metric
@@ -183,123 +144,7 @@ end
 % %display 
 % %repeat, G,blockg,blockI,...
 
-end
-
-
-function P = matrix_generate_strip_old(repeat)
-%this one turns out to be wrong
-%strip,Ptransfer,Qtransfer,numInputSymbols
-
-%repeat = repeat -1 whne terminating dual C code for quantum code
-
-%Input: g (for G), a (for A)
-
-%QCC code
-vv=2;gg=[11 12 13];  %111123
-%vv=3;gg=[111 121 133];  %111123113
-
-%syndrome concolutional code
-%vva=4;gga=[1011 1111]; %11011111  ,u=4,s=2
-%vva=2;gga=[10 11]; %1101
-vva=3;gga=[101 111];
-
-vg=vv;  %constraint length
-ng=size(gg,2);  %block length
-va=vva;  %constraint length  u
-na=size(gga,2);  %block length s
-
-%the small repeated matrix block G
-rowH = 2*(na+1)*va;
-colH = ng+2*(1+na);
-H=zeros(rowH,colH);
-
-%right bottom corner, indentity matrix
-H(end-2*na+1:end,end-2*na+1:end)=eye(2*na);
-
-%first columns in G, using gg
-for i =1:vg  %row
-    for j=1:ng  %col
-        row=1+(i-1)*(na+1)*2;%)(na+1)*(i-1)+1;
-        gij=pickGF4(gg(j),i);%pickGF4 use inverse index
-        H(row,j)=gij;
-        H(row+1,j)=timesGF4(gij,2); %times \omega
-    end
-end
-
-%second columns in G, using b
-for i = 1:va %row
-    for j=1:na  %sub row
-        row=2*(na+1)*(i-1)+2+j;
-        bji=pickGF4(gga(j),va-i+1);
-        H(row,ng+1)=bji;
-        H(row+na,ng+2)=bji;
-    end
-end
-%identity matrix for syndrome error in quantum part
-H(1,ng+1)=1;
-H(2,ng+2)=1;
-
-%construct big matrix P
-rowP=rowH+(na+1)*(repeat-1);
-colP=colH*repeat+(vg-1)*ng+na*(va-1);
-P=zeros(rowP,colP);
-
-%Add first columns, blockg
-blockg=zeros((vg-1)*(1+na)*2,ng*(vg-1));
-for i = 1:(vg-1) %row
-    for j=i:(vg-1)  %col
-        for k = 1:ng  % sub col
-            gij=pickGF4(gg(k),vg-j+1+i-1);
-            blockg(1+(i-1)*(na+1)*2,(j-1)*ng+k)=gij;
-            blockg(2+(i-1)*(na+1)*2,(j-1)*ng+k)=timesGF4(gij,2); %times omega
-        end
-    end
-end
-P(1:size(blockg,1),1:size(blockg,2))=blockg;
-
-%add second columns, blockI
-blockI=zeros(2*(1+na)*(va-1),2*na*(va-1) );
-for i =1:(va-1)
-    blockI(1+2+(i-1)*(na+1)*2:1+2+2*na-1+(i-1)*(na+1)*2,1+(i-1)*na*2:2*na*i)=eye(na*2);    
-end
-P(1:size(blockI,1),1+size(blockg,2):size(blockg,2)+size(blockI,2))=blockI;
-
-%add repeated part, H
-for i = 1:(repeat) % add G
-    row=2*(na+1)*(i-1)+1;
-    col=colH*(i-1)+1+(vg-1)*ng+2*na*(va-1);
-    P(row:(row+rowH-1),col:(col+colH-1))=H;
-end
-%P1=P;
-%remove last rows of extra g and omega g
-for i =1:(va-1)
-  row_to_remove = 2*(na+1)*repeat+1+2*(na)*(i-1);
-  P(row_to_remove:row_to_remove+1,:)=[];
-end
-
-%comment this part to terminate the generating code C
-%remove some columns to terminate dual code C instead of generating code C.
-%distance of dual code is preserved in this case.
-%repeat = repeat-1 in this case.
-%remove g_3 wg_3
-P(:,end-size(H,2)+1:end-size(H,2)+3)=[];
-%remove g_1 wg_1
-P(:,1:3)=[];
-
-
-
-
-% %construct some necessary matrix  %moved to matrix_parameters.m
-% strip = P2strip(P); %2-row matrix, denote the top and bottom nonzero position in each row
-% Ptransfer = P2metric_transfer(P);  %Ptrasnfer=T_p=T_{row}(0|I)T_{col}, it can convert a syndrome to input metric
-% %checked: sum(sum(Ptransfer)) = size(P,1)
-% 
-% Qtransfer = sum(Ptransfer); % a vector indicate the position of syndrome bits in the mixed error vector
-% 
-% numInputSymbols = (Qtransfer-2)*(-2); %denote it is a qubit or syndrome bit
-% 
-% %display 
-% %repeat, G,blockg,blockI,...
+%Qtransfer
 
 end
 

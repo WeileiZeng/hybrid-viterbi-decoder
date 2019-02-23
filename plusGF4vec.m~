@@ -1,5 +1,5 @@
 %add two GF4 vectors, either row vector or column vector, or even array. but input a,b should be the same size
-%check the size of a and b before using this function, other wise you get the wrong result without error notice
+%check the size of a and b before using this function
 
 function c =plusGF4vec(a,b)
         [row,col] = size(a);

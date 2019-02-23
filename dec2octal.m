@@ -1,4 +1,5 @@
-%convert a decimal matrix into an octal matrix
+%jan 2018 Weilei Zeng
+%convert a decimal matrix into an octal matrix. octal means 6.
 function B = dec2octal(A)
     [x,y]=size(A);
     for i =1:x

@@ -1,11 +1,14 @@
+%Weilei Zeng, Feb 19, 2019
+% add P_dual to check if the remained error is trivial or not.
+
 % Weilei Zeng, 07/19/2018
 % soft decision decoding
 % viterbi decoding for hybrid convolutional code (quantum and classical).
 % use trellisGF4 defined by Weilei Zeng.
 
-function [isGoodError,errorRemained] = viterbiDecoderGF4StripSoft(...
+function [isGoodError,errorRemained] = viterbiDecoderGF4DegenerateStripSoft(...
     P,strip,Ptransfer,Qtransfer,numInputSymbols,trellisGF4Strip,...
-    errorInput,metric_vec_P_input)
+    errorInput,metric_vec_P_input,P_dual)
 %return 1 for fully-detected good error and 0 otherwise
 
 
@@ -155,46 +158,23 @@ errorRemained = totalError2QubitError(errorRemained,Qtransfer);
 %totalNumberOfErrorRemained = sum(errorRemained);
 %disp('notation in errormap => 1: remained error; 2: fixed error')
 
-%{  %display
-%disp('[errorInput;metric_vec_P;errorDetected;Qtransfer;order]')
-%order=1:size(Qtransfer,2);
-%order=size(Qtransfer,2)-order; %reverse
-                               %[errorInput;metric_vec_P;errorDetected;errorRemained;Qtransfer;order]'
-%}
 
-if sum(abs(errorRemained))
+
+
+
+if sum(abs(errorRemained)) %nonzero error
     isGoodError = 0;
+    %check if errorRemained is a trivial error in the stabilzier group
+    %a trivial error in stabilizer group commute with all codeword, but a code doesn't commute with at least one other codeword.
+    dual_syndrome=measure(P_dual,errorRemained,numInputSymbols);
+    if sum(dual_syndrome)==0 %is a trivial error
+        isGoodError=1;
+        errorRemained=errorRemained*0;
+    end
 else
     isGoodError = 1;
 end
 
-
-
-
-
-%if isGoodError==0
-% errorInput
-%   errorDetected
-%   metric_vec_P
-%   syndrome = measure(P,errorInput,numInputSymbols) %GF4 and GF2; 
-    %    pause
-    %end
-
-
-
-%check Feb 5
-%pathMetricCell{4,1}
-%pathMetricCell{4,9}
-%pause
-
-%syndrome check. result: syndrome is right
-%{
-%metric_vec_P
-%errorInput
-%metric_vec_P_diff = measureP(P,plusGF4vec(errorInput,errorDetected),Ptransfer,Qtransfer,numInputSymbols,metric_vec_P_input);
-%sign(metric_vec_P_diff)
-%pause
-%}
 
 end
 
@@ -281,26 +261,6 @@ function mixMetric = measureP(P,errorInput,Ptransfer,Qtransfer,numInputSymbols,m
     
 end
 
-% 
-% function metric_vec =syndrome2metric_vec_blockcode(syndrome,errorLength)
-% %apply syndrome result to the last columns in metric_vec
-% %for hard decision, we use 1,-1,
-% %for soft decision, we use
-%     metric_vec=ones(1,errorLength);
-%     syndrome_length=size(syndrome,2);
-%     for i = 1:syndrome_length
-%         if syndrome(i)
-%             metric_vec(errorLength-syndrome_length+i) = -1;
-%         end
-%     end
-%     
-% end
-
-% function metric_vec_log = error_prob_2_metric_vec_log(error_prob)
-%     
-%     metric_vec_log = - log10( error_prob./(1-error_prob) );
-% 
-% end
 
 function metric_vec =syndrome2metric_vec_P(syndrome,Ptransfer)
 %apply syndrome result to the correspoing columns in metric_vec_P,

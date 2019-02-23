@@ -145,6 +145,9 @@ error=path(finalState+1);
 errorDetected(layer) = error;
 
 
+% display
+%errorDetected
+% pathMetricCell{3,:}
 
 %shiftLength=0;
 %finalState = previous2final(previousState,shiftLength);
