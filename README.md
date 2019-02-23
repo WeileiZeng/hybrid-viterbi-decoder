@@ -57,12 +57,13 @@ This project include several small projects. (running environment: Matlab R2018a
   * others
      * count_lines  
   
-  ## structure of the project in Feb 2019 (updated files)
-  ** saveTrellis2File            
-  ** matrix_generate_strip
-  ** viterbiDecoderGF4DegenerateStripSoftCircuit
-  ** viterbiDecoderGF4DegenerateStripSoft
-  ** simulationCircuit
-  ** simulationRepeatCircuit       
+  ## structure of the project in Feb 2019 
+  * updated/added files compared with the summer version
+   * saveTrellis2File             
+   * matrix_generate_strip
+   * viterbiDecoderGF4DegenerateStripSoftCircuit
+   * viterbiDecoderGF4DegenerateStripSoft
+   * simulationCircuit
+   * simulationRepeatCircuit       
   
  
