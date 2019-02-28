@@ -1,7 +1,8 @@
 # hybrid-viterbi-decoder
-This  project implement a hybrid viterbi decoding method able to decode both qubit error and syndrome error
+This  project implement a hybrid viterbi decoder, which is able to decode a data syndrome code with both qubit error and syndrome error. Theoretically any code is decodable. To optimize the complexity, the parity check matrix need to be permuted into a "strip" form, with bandheight less than 12.
 
-Author: Weilei Zeng  dated: summer 2018
+Author: Weilei Zeng  updated: Feb 2019  dated: Summer 2018
+
 ### classical binary code
 For classical binary code, one use trellis diagram to encode and decode. The decoding method is called viterbi decoding, in which we find a path, starting from zero states and ends in zero states, with maximum probability. It can not only decode the errors, but also decode the codeword at the same time.
 ### syndrome trellis
