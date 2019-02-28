@@ -1,5 +1,5 @@
 # hybrid-viterbi-decoder
-This  project implement a hybrid viterbi decoder, which is able to decode a data syndrome code with both qubit error and syndrome error. Theoretically any code is decodable. To optimize the complexity, the parity check matrix need to be permuted into a "strip" form, with bandheight less than 12.
+This  project implement a hybrid viterbi decoder, which is able to decode a data syndrome code with both qubit error and syndrome error. Theoretically any code is decodable. To optimize the complexity, the parity check matrix need to be permuted into a "strip" form, with bandheight less than 12, for simulation in hours.
 
 Author: Weilei Zeng  updated: Feb 2019  dated: Summer 2018
 
